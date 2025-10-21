@@ -336,6 +336,21 @@ impl Store {
         r
     }
 
+    #[doc(alias = "nix_store_real_path")]
+    pub fn real_path(&mut self, path: &StorePath) -> Result<String> {
+        let mut r = result_string_init!();
+        unsafe {
+            check_call!(raw::store_real_path(
+                &mut self.context,
+                self.inner.ptr(),
+                path.as_ptr(),
+                Some(callback_get_result_string),
+                callback_get_result_string_data(&mut r)
+            ))
+        }?;
+        r
+    }
+
     #[doc(alias = "nix_derivation_from_json")]
     pub fn drv_from_json(&mut self, json: &str) -> Result<Derivation> {
         let json = CString::new(json)?;
@@ -465,7 +480,9 @@ mod tests {
         let store_path_string =
             format!("{store_dir}/rdd4pnr4x9rqc9wgbibhngv217w2xvxl-bash-interactive-5.2p26");
         let store_path = store.parse_store_path(store_path_string.as_str()).unwrap();
+        let real_store_path = store.real_path(&store_path).unwrap();
         assert_eq!(store_path.name().unwrap(), "bash-interactive-5.2p26");
+        assert_eq!(real_store_path, store_path_string);
     }
 
     #[test]
