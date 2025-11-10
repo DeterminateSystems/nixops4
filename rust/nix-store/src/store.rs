@@ -67,6 +67,7 @@ lazy_static! {
 }
 
 unsafe extern "C" fn callback_get_result_store_path_set(
+    _context: *mut raw::c_context,
     user_data: *mut std::os::raw::c_void,
     store_path: *const raw::StorePath,
 ) {
